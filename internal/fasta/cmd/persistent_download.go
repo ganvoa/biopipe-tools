@@ -1,19 +1,20 @@
 package cmd
 
 import (
-	"log"
 	"os"
 	"strconv"
 
-	"github.com/ganvoa/biopipe-tools/fasta"
-	"github.com/ganvoa/biopipe-tools/platform/database"
+	"github.com/ganvoa/biopipe-tools/internal/fasta"
+	"github.com/ganvoa/biopipe-tools/internal/platform"
 	"github.com/joho/godotenv"
 	"github.com/spf13/cobra"
 )
 
-func PersistentDownload() *cobra.Command {
+const command_fasta_persistent_download = "fasta:persistent-download"
+
+func FastaPersistentDownloadCommand() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "fasta:persistent-download",
+		Use:   command_fasta_persistent_download,
 		Args:  cobra.MinimumNArgs(1),
 		Short: "Downloads a fasta file from a list and marks it downloaded",
 		Run:   runPersistentDownload,
@@ -21,7 +22,7 @@ func PersistentDownload() *cobra.Command {
 
 	cmd.Flags().StringP("output", "o", "", "Output directory")
 	cmd.MarkFlagRequired("output")
-
+	cmd.Flags().Bool("debug", false, "Debug")
 	cmd.Flags().StringP("database", "d", "ecoli", "Database name")
 	cmd.Flags().StringP("index", "i", "enterobase", "Elasticsearch Index Name")
 
@@ -31,6 +32,11 @@ func PersistentDownload() *cobra.Command {
 func runPersistentDownload(cmd *cobra.Command, args []string) {
 
 	godotenv.Load()
+
+	debug, _ := cmd.Flags().GetBool("debug")
+	logger := platform.NewLogger(command_fasta_persistent_download, debug)
+	logger.Debug("started")
+
 	sessionKey := os.Getenv("ENTEROBASE_SESSION")
 	outputDir, _ := cmd.Flags().GetString("output")
 	databaseName, _ := cmd.Flags().GetString("database")
@@ -38,25 +44,27 @@ func runPersistentDownload(cmd *cobra.Command, args []string) {
 
 	fastaId, err := strconv.Atoi(args[0])
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal(err)
 	}
 
-	client, err := database.NewClient(
+	client, err := platform.NewClient(
 		os.Getenv("ELASTICSEARCH_URL"),
 		os.Getenv("ELASTICSEARCH_USERNAME"),
 		os.Getenv("ELASTICSEARCH_PASSWORD"),
 	)
 
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal(err)
 	}
 
 	repository := fasta.NewRepository(indexName, client)
-	downloader := fasta.NewDownloader(sessionKey, outputDir, databaseName)
+	downloader := fasta.NewDownloader(sessionKey, outputDir, databaseName, logger)
 
-	downloaderPersistent := fasta.NewDownloaderPersistent(downloader, repository)
+	downloaderPersistent := fasta.NewDownloaderPersistent(downloader, repository, logger)
 	err = downloaderPersistent.Download(fastaId)
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal(err)
 	}
+
+	logger.Debug("ending")
 }

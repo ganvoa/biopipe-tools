@@ -9,7 +9,12 @@ import (
 
 	"github.com/elastic/go-elasticsearch/v7"
 	"github.com/elastic/go-elasticsearch/v7/esapi"
+	"github.com/ganvoa/biopipe-tools/internal"
 )
+
+type StrainRepository interface {
+	SaveAll(strains []Strain) error
+}
 
 type Accesion struct {
 	SeqInsert           int    `json:"seq_insert"`
@@ -67,19 +72,21 @@ type Strain struct {
 	IntegronFinder           bool       `json:"integron_finder"`
 }
 
-type StrainRepositoryElasticSearch struct {
+type strainRepositoryElasticSearch struct {
 	index  string
 	client *elasticsearch.Client
+	logger internal.Logger
 }
 
-func NewRepository(index string, client *elasticsearch.Client) *StrainRepositoryElasticSearch {
-	repository := new(StrainRepositoryElasticSearch)
+func NewRepository(index string, client *elasticsearch.Client, logger internal.Logger) *strainRepositoryElasticSearch {
+	repository := new(strainRepositoryElasticSearch)
 	repository.index = index
 	repository.client = client
+	repository.logger = logger
 	return repository
 }
 
-func (repo StrainRepositoryElasticSearch) SaveAll(strains []Strain) error {
+func (repo strainRepositoryElasticSearch) SaveAll(strains []Strain) error {
 	var bodyBuf bytes.Buffer
 
 	for _, strain := range strains {
@@ -92,7 +99,7 @@ func (repo StrainRepositoryElasticSearch) SaveAll(strains []Strain) error {
 		strain.IntegronFinder = false
 		strain.Downloaded = false
 		strainId := strconv.Itoa(strain.Id)
-		fmt.Printf("Strain ID:  %v\n", strainId)
+		repo.logger.Debugf("strainId %s", strainId)
 		createString, err := json.Marshal(strain)
 		if err != nil {
 			return err

@@ -3,12 +3,19 @@ package fasta
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"strconv"
 	"strings"
 
 	"github.com/elastic/go-elasticsearch/v7"
 	"github.com/elastic/go-elasticsearch/v7/esapi"
 )
+
+type FastaRepository interface {
+	NotDownloaded() ([]Strain, error)
+	MarkAsDownloaded(strainId int) error
+	GetByStrainId(strainId int) (*Strain, error)
+}
 
 type DownloadedRequest struct {
 	Source struct {
@@ -21,6 +28,10 @@ type Strain struct {
 	AssemblyId int `json:"best_assembly"`
 }
 
+type GetByStrainIdResponse struct {
+	Source Strain `json:"_source"`
+}
+
 type NotDownloadedResponse struct {
 	Hits struct {
 		Hits []struct {
@@ -29,19 +40,19 @@ type NotDownloadedResponse struct {
 	} `json:"hits"`
 }
 
-type FastaRepositoryElasticSearch struct {
+type fastaRepositoryElasticSearch struct {
 	index  string
 	client *elasticsearch.Client
 }
 
-func NewRepository(index string, client *elasticsearch.Client) *FastaRepositoryElasticSearch {
-	repository := new(FastaRepositoryElasticSearch)
+func NewRepository(index string, client *elasticsearch.Client) fastaRepositoryElasticSearch {
+	repository := fastaRepositoryElasticSearch{}
 	repository.index = index
 	repository.client = client
 	return repository
 }
 
-func (repo FastaRepositoryElasticSearch) NotDownloaded() ([]Strain, error) {
+func (repo fastaRepositoryElasticSearch) NotDownloaded() ([]Strain, error) {
 	reader := strings.NewReader(`{
 		"query": {
 		  "bool": {
@@ -99,7 +110,10 @@ func (repo FastaRepositoryElasticSearch) NotDownloaded() ([]Strain, error) {
 	defer res.Body.Close()
 
 	response := NotDownloadedResponse{}
-	json.NewDecoder(res.Body).Decode(&response)
+	err = json.NewDecoder(res.Body).Decode(&response)
+	if err != nil {
+		return nil, err
+	}
 
 	strains := []Strain{}
 	for _, hit := range response.Hits.Hits {
@@ -108,7 +122,31 @@ func (repo FastaRepositoryElasticSearch) NotDownloaded() ([]Strain, error) {
 	return strains, nil
 }
 
-func (repo FastaRepositoryElasticSearch) MarkAsDownloaded(strainId int) error {
+func (repo fastaRepositoryElasticSearch) GetByStrainId(strainId int) (*Strain, error) {
+	req := esapi.GetRequest{
+		Index:      repo.index,
+		DocumentID: strconv.Itoa(strainId),
+	}
+	res, err := req.Do(context.Background(), repo.client)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != 200 {
+		return nil, errors.New("strain not found")
+	}
+
+	strainResponse := new(GetByStrainIdResponse)
+	err = json.NewDecoder(res.Body).Decode(&strainResponse)
+	if err != nil {
+		return nil, err
+	}
+
+	return &strainResponse.Source, nil
+}
+
+func (repo fastaRepositoryElasticSearch) MarkAsDownloaded(strainId int) error {
 	req := esapi.UpdateRequest{
 		Index:      repo.index,
 		DocumentID: strconv.Itoa(strainId),

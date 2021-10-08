@@ -5,17 +5,17 @@ import (
 	"io/ioutil"
 )
 
-type StrainParser struct {
+type strainParser struct {
 	filePath string
 }
 
-func NewStrainParser(filePath string) *StrainParser {
-	sp := new(StrainParser)
+func NewStrainParser(filePath string) strainParser {
+	sp := strainParser{}
 	sp.filePath = filePath
 	return sp
 }
 
-func (sp *StrainParser) GetStrains() ([]Strain, error) {
+func (sp *strainParser) GetStrains() ([]Strain, error) {
 	strainJson, err := ioutil.ReadFile(sp.filePath)
 	if err != nil {
 		return nil, err

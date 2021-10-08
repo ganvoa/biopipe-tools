@@ -1,4 +1,4 @@
-package database
+package platform
 
 import "github.com/elastic/go-elasticsearch/v7"
 
