@@ -11,7 +11,9 @@ func NewLogger(tag string, debug bool) *logger {
 	l := &logger{}
 	l.tag = tag
 	l.logger = logrus.New()
-	l.logger.SetFormatter(&logrus.TextFormatter{})
+	l.logger.SetFormatter(&logrus.TextFormatter{
+		FullTimestamp: true,
+	})
 	if debug {
 		l.logger.Level = logrus.DebugLevel
 	}

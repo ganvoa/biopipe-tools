@@ -25,9 +25,9 @@ func (sb StrainBakuper) Backup() error {
 		return err
 	}
 
-	sb.logger.Infof("%d strains found", len(strains))
+	sb.logger.Infof("strains found %d", len(strains))
 	sb.repository.SaveAll(strains)
-	sb.logger.Infof("strains saved", len(strains))
+	sb.logger.Infof("strains saved %d", len(strains))
 
 	return nil
 }

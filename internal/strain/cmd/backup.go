@@ -16,7 +16,7 @@ func StrainBackupCommand() *cobra.Command {
 		Use:   command_strain_backup,
 		Args:  cobra.MinimumNArgs(1),
 		Short: "Backups a json file from enterobase to elasticsearch",
-		Run:   runBackup,
+		Run:   run,
 	}
 
 	cmd.Flags().StringP("index", "i", "enterobase", "Elasticsearch Index Name")
@@ -25,7 +25,7 @@ func StrainBackupCommand() *cobra.Command {
 	return cmd
 }
 
-func runBackup(cmd *cobra.Command, args []string) {
+func run(cmd *cobra.Command, args []string) {
 	godotenv.Load()
 
 	debug, _ := cmd.Flags().GetBool("debug")

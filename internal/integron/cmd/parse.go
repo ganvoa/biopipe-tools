@@ -16,7 +16,7 @@ func IntegronParse() *cobra.Command {
 		Use:   command_integron_parse,
 		Args:  cobra.MinimumNArgs(1),
 		Short: "transforms a tsv file into a json file based on a integron finder result",
-		Run:   runBackup,
+		Run:   runIntegronParse,
 	}
 
 	cmd.Flags().StringP("output", "o", "output/", "Output directory")
@@ -25,7 +25,7 @@ func IntegronParse() *cobra.Command {
 	return cmd
 }
 
-func runBackup(cmd *cobra.Command, args []string) {
+func runIntegronParse(cmd *cobra.Command, args []string) {
 	godotenv.Load()
 
 	outputDir, _ := cmd.Flags().GetString("output")

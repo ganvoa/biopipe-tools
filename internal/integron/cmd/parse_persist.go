@@ -16,7 +16,7 @@ func IntegronParsePersist() *cobra.Command {
 		Use:   command_integron_parse_persist,
 		Args:  cobra.MinimumNArgs(1),
 		Short: "reads a tsv file and adds it to elasticsearch strain",
-		Run:   run,
+		Run:   runIntegronParsePersist,
 	}
 
 	cmd.Flags().IntP("strain", "s", 0, "StrainId")
@@ -28,7 +28,7 @@ func IntegronParsePersist() *cobra.Command {
 	return cmd
 }
 
-func run(cmd *cobra.Command, args []string) {
+func runIntegronParsePersist(cmd *cobra.Command, args []string) {
 	godotenv.Load()
 
 	strainId, _ := cmd.Flags().GetInt("strain")

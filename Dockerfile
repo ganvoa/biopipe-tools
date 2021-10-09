@@ -11,6 +11,10 @@ RUN go build -o /usr/bin/biopipe ./cmd/cli/biopipe.go
 
 FROM debian:bullseye-slim
 
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends ca-certificates
+
+RUN update-ca-certificates
 COPY --from=builder /usr/bin/biopipe /usr/bin/biopipe
 
 CMD ["/usr/bin/biopipe"]

@@ -49,7 +49,7 @@ func (d downloaderPersistentBatch) Download() error {
 			err = d.downloader.Download(assemblyId)
 			if err != nil {
 				totalFailed = totalFailed + 1
-				d.logger.Warnf("couldnt donwload strainId %d", strainId)
+				d.logger.Warnf("couldnt download strainId %d", strainId)
 				continue
 			}
 

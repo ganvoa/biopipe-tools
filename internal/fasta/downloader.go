@@ -35,11 +35,6 @@ func (d Downloader) Download(assemblyId int) error {
 
 	outputFilePath := d.outputDir + "/" + strconv.Itoa(assemblyId) + ".fasta"
 	d.logger.Debugf("output file: %s", outputFilePath)
-	outputFile, err := os.Create(outputFilePath)
-	if err != nil {
-		return err
-	}
-	defer outputFile.Close()
 	d.logger.Debugf("new request to url %s", downloadUrl)
 	req, err := http.NewRequest("GET", downloadUrl, nil)
 	if err != nil {
@@ -73,6 +68,11 @@ func (d Downloader) Download(assemblyId int) error {
 		return errors.New("file not found")
 	}
 
+	outputFile, err := os.Create(outputFilePath)
+	if err != nil {
+		return err
+	}
+	defer outputFile.Close()
 	d.logger.Debugf("saving to file to %s", outputFilePath)
 	_, err = io.Copy(outputFile, res.Body)
 	if err != nil {

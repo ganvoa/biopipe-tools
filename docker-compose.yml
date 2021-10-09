@@ -1,0 +1,11 @@
+version: "3.4"
+services: 
+  app:
+    image: gamboa/biopipe-cli:latest
+    environment:
+      - ENTEROBASE_SESSION=$ENTEROBASE_SESSION
+      - ELASTICSEARCH_URL=$ELASTICSEARCH_URL
+      - ELASTICSEARCH_USERNAME=$ELASTICSEARCH_USERNAME
+      - ELASTICSEARCH_PASSWORD=$ELASTICSEARCH_PASSWORD
+    volumes:
+      - ./download:/var/download
