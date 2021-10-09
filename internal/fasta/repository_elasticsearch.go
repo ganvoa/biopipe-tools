@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -12,7 +13,7 @@ import (
 )
 
 type FastaRepository interface {
-	NotDownloaded() ([]Strain, error)
+	NotDownloaded(from int) ([]Strain, error)
 	MarkAsDownloaded(strainId int) error
 	GetByStrainId(strainId int) (*Strain, error)
 }
@@ -52,10 +53,27 @@ func NewRepository(index string, client *elasticsearch.Client) fastaRepositoryEl
 	return repository
 }
 
-func (repo fastaRepositoryElasticSearch) NotDownloaded() ([]Strain, error) {
-	reader := strings.NewReader(`{
+func (repo fastaRepositoryElasticSearch) NotDownloaded(from int) ([]Strain, error) {
+	reader := strings.NewReader(fmt.Sprintf(`{
+		"size": 20,
+		"sort": [
+		  {
+			"id": {
+			  "order": "desc"
+			}
+		  }
+		],
 		"query": {
 		  "bool": {
+			"filter": [
+			  {
+				"range": {
+				  "id": {
+					"lt": %d
+				  }
+				}
+			  }
+			],
 			"must_not": [
 			  {
 				"term": {
@@ -95,7 +113,8 @@ func (repo fastaRepositoryElasticSearch) NotDownloaded() ([]Strain, error) {
 		  "collection_year",
 		  "downloaded"
 		]
-	  }`)
+	  }
+	  `, from))
 
 	res, err := repo.client.Search(
 		repo.client.Search.WithContext(context.Background()),

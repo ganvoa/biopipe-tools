@@ -31,7 +31,7 @@ func NewDownloader(sessionKey string, outputDir string, databaseName string, log
 
 func (d Downloader) Download(assemblyId int) error {
 
-	d.logger.Infof("downloading assemblyId %d", assemblyId)
+	d.logger.Debugf("downloading assemblyId %d", assemblyId)
 
 	outputFilePath := d.outputDir + "/" + strconv.Itoa(assemblyId) + ".fasta"
 	d.logger.Debugf("output file: %s", outputFilePath)
@@ -60,7 +60,7 @@ func (d Downloader) Download(assemblyId int) error {
 	}
 	req.AddCookie(sessionCookie)
 
-	d.logger.Infof("get request to %s", downloadUrl)
+	d.logger.Debugf("get request to %s", downloadUrl)
 	client := &http.Client{}
 	res, err := client.Do(req)
 
@@ -73,7 +73,7 @@ func (d Downloader) Download(assemblyId int) error {
 		return errors.New("file not found")
 	}
 
-	d.logger.Infof("saving to file to %s", outputFilePath)
+	d.logger.Debugf("saving to file to %s", outputFilePath)
 	_, err = io.Copy(outputFile, res.Body)
 	if err != nil {
 		return err
