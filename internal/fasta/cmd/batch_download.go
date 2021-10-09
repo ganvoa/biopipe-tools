@@ -18,7 +18,7 @@ func FastaBatchDownloadCommand() *cobra.Command {
 		Run:   runBatchDownload,
 	}
 
-	cmd.Flags().StringP("output", "o", "", "Output directory")
+	cmd.Flags().StringP("output", "o", "output/", "Output directory")
 	cmd.MarkFlagRequired("output")
 	cmd.Flags().Bool("debug", false, "Debug")
 	cmd.Flags().StringP("database", "d", "ecoli", "Database name")
@@ -41,7 +41,7 @@ func runBatchDownload(cmd *cobra.Command, args []string) {
 	databaseName, _ := cmd.Flags().GetString("database")
 	indexName, _ := cmd.Flags().GetString("index")
 
-	client, err := platform.NewClient(
+	client, err := platform.NewElasticSearchConnection(
 		os.Getenv("ELASTICSEARCH_URL"),
 		os.Getenv("ELASTICSEARCH_USERNAME"),
 		os.Getenv("ELASTICSEARCH_PASSWORD"),

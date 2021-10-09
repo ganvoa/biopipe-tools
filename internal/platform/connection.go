@@ -2,7 +2,7 @@ package platform
 
 import "github.com/elastic/go-elasticsearch/v7"
 
-func NewClient(url string, username string, password string) (*elasticsearch.Client, error) {
+func NewElasticSearchConnection(url string, username string, password string) (*elasticsearch.Client, error) {
 
 	config := elasticsearch.Config{
 		Addresses: []string{

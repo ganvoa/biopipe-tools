@@ -20,8 +20,7 @@ func FastaDownloadCommand() *cobra.Command {
 		Run:   runDownload,
 	}
 
-	cmd.Flags().StringP("output", "o", "output", "Output directory")
-	cmd.MarkFlagRequired("output")
+	cmd.Flags().StringP("output", "o", "output/", "Output directory")
 	cmd.Flags().Bool("debug", false, "Debug")
 	cmd.Flags().StringP("database", "d", "ecoli", "Database name")
 

@@ -34,7 +34,7 @@ func runBackup(cmd *cobra.Command, args []string) {
 
 	indexName, _ := cmd.Flags().GetString("index")
 	filePath := args[0]
-	client, err := platform.NewClient(
+	client, err := platform.NewElasticSearchConnection(
 		os.Getenv("ELASTICSEARCH_URL"),
 		os.Getenv("ELASTICSEARCH_USERNAME"),
 		os.Getenv("ELASTICSEARCH_PASSWORD"),

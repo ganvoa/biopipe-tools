@@ -47,7 +47,7 @@ func runPersistentDownload(cmd *cobra.Command, args []string) {
 		logger.Fatal(err)
 	}
 
-	client, err := platform.NewClient(
+	client, err := platform.NewElasticSearchConnection(
 		os.Getenv("ELASTICSEARCH_URL"),
 		os.Getenv("ELASTICSEARCH_USERNAME"),
 		os.Getenv("ELASTICSEARCH_PASSWORD"),
