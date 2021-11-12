@@ -1,7 +1,9 @@
 version: "3.4"
 services: 
   app:
-    image: gamboa/biopipe-cli:latest
+    build: 
+      dockerfile: ./local.Dockerfile
+      context: .
     environment:
       - ENTEROBASE_SESSION=$ENTEROBASE_SESSION
       - ELASTICSEARCH_URL=$ELASTICSEARCH_URL
@@ -9,9 +11,3 @@ services:
       - ELASTICSEARCH_PASSWORD=$ELASTICSEARCH_PASSWORD
     volumes:
       - ./download:/var/download
-  integron:
-    image: gempasteur/integron_finder:2.0rc10
-    volumes:
-      - ./test/integrons:/output
-      - ./download:/fasta
-    entrypoint: /bin/bash

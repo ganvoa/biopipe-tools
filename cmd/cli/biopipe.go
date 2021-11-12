@@ -17,5 +17,6 @@ func main() {
 	rootCmd.AddCommand(strain.StrainBackupCommand())
 	rootCmd.AddCommand(integron.IntegronParse())
 	rootCmd.AddCommand(integron.IntegronParsePersist())
+	rootCmd.AddCommand(integron.IntegronFind())
 	rootCmd.Execute()
 }
