@@ -9,9 +9,3 @@ services:
       - ELASTICSEARCH_PASSWORD=$ELASTICSEARCH_PASSWORD
     volumes:
       - ./download:/var/download
-  integron:
-    image: gempasteur/integron_finder:2.0rc10
-    volumes:
-      - ./test/integrons:/output
-      - ./download:/fasta
-    entrypoint: /bin/bash
