@@ -1,0 +1,5 @@
+ID_integron	ID_replicon	element	pos_beg	pos_end	strand	evalue	type_elt	annotation	model	type	default	distance_2attC	considered_topology
+integron_01	ESC_WB8901AA_AS_NODE_56_length_2581_cov_47.529747	ESC_WB8901AA_AS_NODE_56_length_2581_cov_47.529747_1	86	832	-1	NA	protein	protein	NA	CALIN	No	NA	lin
+integron_01	ESC_WB8901AA_AS_NODE_56_length_2581_cov_47.529747	ESC_WB8901AA_AS_NODE_56_length_2581_cov_47.529747_2	847	2388	-1	NA	protein	protein	NA	CALIN	No	NA	lin
+integron_01	ESC_WB8901AA_AS_NODE_56_length_2581_cov_47.529747	attc_001	892	934	-1	0.29	attC	attC	attc_4	CALIN	No	NA	lin
+integron_01	ESC_WB8901AA_AS_NODE_56_length_2581_cov_47.529747	attc_002	1599	1705	-1	0.026	attC	attC	attc_4	CALIN	No	665.0	lin

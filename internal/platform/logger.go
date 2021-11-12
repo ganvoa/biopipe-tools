@@ -13,6 +13,7 @@ func NewLogger(tag string, debug bool) *logger {
 	l.logger = logrus.New()
 	l.logger.SetFormatter(&logrus.TextFormatter{
 		FullTimestamp: true,
+		ForceColors:   true,
 	})
 	if debug {
 		l.logger.Level = logrus.DebugLevel
