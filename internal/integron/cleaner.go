@@ -1,8 +1,11 @@
 package integron
 
 import (
+	"bufio"
 	"io/ioutil"
+	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/ganvoa/biopipe-tools/internal"
 )
@@ -41,6 +44,11 @@ func (cleaner integronResultCleaner) Clean() error {
 
 		if !hasResult {
 			cleaner.logger.Infof("delete file %s", file.Name())
+			fileToRemove := filepath.Join(cleaner.resultDir, file.Name())
+			err = os.Remove(fileToRemove)
+			if err != nil {
+				return err
+			}
 			continue
 		}
 
@@ -55,6 +63,25 @@ func (cleaner integronResultCleaner) fileHasResult(filePath string) (bool, error
 	extension := filepath.Ext(fullPath)
 
 	if extension != ".integrons" {
+		return false, nil
+	}
+
+	file, err := os.Open(fullPath)
+	if err != nil {
+		return false, err
+	}
+
+	defer file.Close()
+
+	reader := bufio.NewReader(file)
+	// optionally, resize scanner's capacity for lines over 64K, see next example
+	line, _, err := reader.ReadLine()
+
+	if err != nil {
+		return false, err
+	}
+
+	if strings.Contains(string(line), "No Integron found") {
 		return false, nil
 	}
 

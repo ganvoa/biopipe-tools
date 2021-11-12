@@ -1,6 +1,7 @@
 package integron_test
 
 import (
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
@@ -11,15 +12,20 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestRemoveFilesWithoutIntegronExtension(t *testing.T) {
+func TestRemoveFilesWithoutIntegronResult(t *testing.T) {
 	baseFolder := filepath.Join(".", "cleaner_test_data", "Results_Integron_Finder_488112")
 	newFolder := filepath.Join(".", "cleaner_test_data", "Results_Integron_Finder_488112_test")
+
 	err := copy.Copy(baseFolder, newFolder)
 	assert.NoError(t, err)
 	logger := &platform.FakeLogger{}
 	cleaner := integron.NewIntegronResultCleaner(newFolder, logger)
 	err = cleaner.Clean()
 	assert.NoError(t, err)
+
+	files, _ := ioutil.ReadDir(newFolder)
+	assert.Equal(t, 3, len(files))
+
 	err = os.RemoveAll(newFolder)
 	assert.NoError(t, err)
 }
