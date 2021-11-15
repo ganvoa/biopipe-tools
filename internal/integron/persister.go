@@ -1,5 +1,5 @@
 package integron
 
-type IntegronPersistent interface {
+type Persister interface {
 	Save([]Integron) error
 }

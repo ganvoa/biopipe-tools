@@ -40,7 +40,7 @@ func runIntegronParse(cmd *cobra.Command, args []string) {
 
 	outputPath := outputDir + "/" + file + ".json"
 
-	persistent := integron.NewIntegronPersistentFile(outputPath, logger)
+	persistent := integron.NewFilePersister(outputPath, logger)
 	parser := integron.NewParser(filePath, persistent, logger)
 
 	err := parser.Parse()

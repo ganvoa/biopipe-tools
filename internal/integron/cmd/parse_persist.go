@@ -49,7 +49,7 @@ func runIntegronParsePersist(cmd *cobra.Command, args []string) {
 	}
 
 	repository := integron.NewRepository(indexName, client)
-	persistent := integron.NewIntegronPersistentES(strainId, repository, logger)
+	persistent := integron.NewElasticSearchPersister(strainId, repository, logger)
 	parser := integron.NewParser(filePath, persistent, logger)
 
 	err = parser.Parse()

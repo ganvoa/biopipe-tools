@@ -30,11 +30,11 @@ type Integron struct {
 type integronParser struct {
 	path      string
 	integrons []Integron
-	persist   IntegronPersistent
+	persist   Persister
 	logger    internal.Logger
 }
 
-func NewParser(path string, persist IntegronPersistent, logger internal.Logger) integronParser {
+func NewParser(path string, persist Persister, logger internal.Logger) integronParser {
 	parser := integronParser{}
 	parser.path = path
 	parser.logger = logger

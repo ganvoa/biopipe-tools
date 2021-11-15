@@ -4,14 +4,14 @@ import (
 	"github.com/ganvoa/biopipe-tools/internal"
 )
 
-type integronPersistentES struct {
+type ElasticSearchPersister struct {
 	strainId   int
 	repository IntegronRepository
 	logger     internal.Logger
 }
 
-func NewIntegronPersistentES(strainId int, repository IntegronRepository, logger internal.Logger) integronPersistentES {
-	ipf := integronPersistentES{
+func NewElasticSearchPersister(strainId int, repository IntegronRepository, logger internal.Logger) ElasticSearchPersister {
+	ipf := ElasticSearchPersister{
 		repository: repository,
 		logger:     logger,
 		strainId:   strainId,
@@ -19,7 +19,7 @@ func NewIntegronPersistentES(strainId int, repository IntegronRepository, logger
 	return ipf
 }
 
-func (ipf integronPersistentES) Save(integrons []Integron) error {
+func (ipf ElasticSearchPersister) Save(integrons []Integron) error {
 
 	ipf.logger.Info("saving to elasticsearch")
 	err := ipf.repository.AddIntegron(ipf.strainId, integrons)

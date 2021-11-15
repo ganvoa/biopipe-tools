@@ -7,20 +7,20 @@ import (
 	"github.com/ganvoa/biopipe-tools/internal"
 )
 
-type integronPersistentFile struct {
+type FilePersister struct {
 	outputPath string
 	logger     internal.Logger
 }
 
-func NewIntegronPersistentFile(outputPath string, logger internal.Logger) integronPersistentFile {
-	ipf := integronPersistentFile{
+func NewFilePersister(outputPath string, logger internal.Logger) FilePersister {
+	ipf := FilePersister{
 		outputPath: outputPath,
 		logger:     logger,
 	}
 	return ipf
 }
 
-func (ipf integronPersistentFile) Save(integrons []Integron) error {
+func (ipf FilePersister) Save(integrons []Integron) error {
 	output, err := json.Marshal(integrons)
 
 	if err != nil {

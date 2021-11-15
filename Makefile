@@ -6,7 +6,7 @@ build:
 push:
 	@docker push gamboa/biopipe-cli:latest
 
-.PHONY: mock
+.PHONY: mocks
 mocks:
 	@rm -rf ./mocks
-	@${GOPATH}/bin/mockery --all --keeptree
+	@bin/mockery --all
