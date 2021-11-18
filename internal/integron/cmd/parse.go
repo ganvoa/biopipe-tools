@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"path/filepath"
-
 	"github.com/ganvoa/biopipe-tools/internal/integron"
 	"github.com/ganvoa/biopipe-tools/internal/platform"
 	"github.com/joho/godotenv"
@@ -33,22 +31,13 @@ func runIntegronParse(cmd *cobra.Command, args []string) {
 	logger := platform.NewLogger(command_integron_parse, debug)
 	logger.Debug("started")
 
-	filePath := args[0]
-	_, file := filepath.Split(filePath)
+	folder := args[0]
 
 	logger.Debugf("output %s", outputDir)
 
-	outputPath := outputDir + "/" + file + ".json"
+	parser := integron.NewParser(logger)
 
-	persistent := integron.NewFilePersister(outputPath, logger)
-	parser := integron.NewParser(filePath, persistent, logger)
-
-	err := parser.Parse()
-	if err != nil {
-		logger.Fatal(err)
-	}
-
-	err = parser.Save()
+	_, err := parser.Parse(folder)
 	if err != nil {
 		logger.Fatal(err)
 	}

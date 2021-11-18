@@ -4,7 +4,9 @@ import (
 	"encoding/csv"
 	"errors"
 	"io"
+	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strconv"
 
 	"github.com/ganvoa/biopipe-tools/internal"
@@ -28,29 +30,76 @@ type Integron struct {
 }
 
 type integronParser struct {
-	path      string
-	integrons []Integron
-	persist   IntegronPersister
-	logger    internal.Logger
+	logger internal.Logger
 }
 
-func NewParser(path string, persist IntegronPersister, logger internal.Logger) integronParser {
+func NewParser(logger internal.Logger) integronParser {
 	parser := integronParser{}
-	parser.path = path
 	parser.logger = logger
-	parser.persist = persist
-	parser.integrons = []Integron{}
 	return parser
 }
 
-func (ip integronParser) Parse() error {
+func (ip integronParser) Parse(path string) ([]string, error) {
 
-	ip.logger.Debugf("opening file %s", ip.path)
+	integrons := []string{}
 
-	file, err := os.Open(ip.path)
+	files, err := ioutil.ReadDir(path)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, file := range files {
+
+		if file.IsDir() {
+			continue
+		}
+
+		filePath := filepath.Join(path, file.Name())
+
+		integronsFound, err := ip.fileParse(filePath)
+		if err != nil {
+			return nil, err
+		}
+
+		integronsChain, err := ip.toChain(integronsFound)
+		if err != nil {
+			return nil, err
+		}
+
+		integrons = append(integrons, integronsChain)
+
+	}
+
+	ip.logger.Infof("integrons found %d", len(integrons))
+
+	return integrons, nil
+}
+
+func (ip integronParser) toChain(integrons []Integron) (string, error) {
+	delimiter := "|"
+	chain := ""
+
+	for i := len(integrons) - 1; i >= 0; i-- {
+		if i > 0 {
+			chain = chain + integrons[i].Annotation + delimiter
+		} else {
+			chain = chain + integrons[i].Annotation
+		}
+
+	}
+
+	return chain, nil
+}
+
+func (ip integronParser) fileParse(filePath string) ([]Integron, error) {
+	ip.logger.Debugf("opening file %s", filePath)
+
+	integrons := []Integron{}
+
+	file, err := os.Open(filePath)
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	r := csv.NewReader(file)
@@ -60,11 +109,11 @@ func (ip integronParser) Parse() error {
 	headers, err := r.Read()
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if len(headers) != 14 {
-		return errors.New("num of header cols must be 14")
+		return nil, errors.New("num of header cols must be 14")
 	}
 
 	for {
@@ -76,26 +125,26 @@ func (ip integronParser) Parse() error {
 		}
 
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		if len(record) != 14 {
-			return errors.New("num of record cols must be 14")
+			return nil, errors.New("num of record cols must be 14")
 		}
 
 		posBegin, err := strconv.Atoi(record[3])
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		posEnd, err := strconv.Atoi(record[4])
 		if err != nil {
-			return err
+			return nil, err
 		}
 
-		Strand, err := strconv.Atoi(record[5])
+		strand, err := strconv.Atoi(record[5])
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		ir := Integron{}
@@ -104,7 +153,7 @@ func (ip integronParser) Parse() error {
 		ir.Element = record[2]
 		ir.Pos_Beg = posBegin
 		ir.Pos_End = posEnd
-		ir.Strand = Strand
+		ir.Strand = strand
 		ir.Evalue = record[6]
 		ir.Type_Elt = record[7]
 		ir.Annotation = record[8]
@@ -113,18 +162,9 @@ func (ip integronParser) Parse() error {
 		ir.Default = record[11]
 		ir.Distance_2attC = record[12]
 		ir.Considered_Topology = record[13]
-		ip.integrons = append(ip.integrons, ir)
+
+		integrons = append(integrons, ir)
 	}
 
-	ip.logger.Infof("integrons found %d", len(ip.integrons))
-
-	return nil
-}
-
-func (ip integronParser) Save() error {
-	err := ip.persist.Save(ip.integrons)
-	if err != nil {
-		return err
-	}
-	return nil
+	return integrons, nil
 }

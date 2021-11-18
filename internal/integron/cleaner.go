@@ -74,7 +74,6 @@ func (cleaner integronResultCleaner) fileHasResult(filePath string) (bool, error
 	defer file.Close()
 
 	reader := bufio.NewReader(file)
-	// optionally, resize scanner's capacity for lines over 64K, see next example
 	line, _, err := reader.ReadLine()
 
 	if err != nil {

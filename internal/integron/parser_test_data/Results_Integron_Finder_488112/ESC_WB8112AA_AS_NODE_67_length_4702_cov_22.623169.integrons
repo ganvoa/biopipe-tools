@@ -1,0 +1,5 @@
+ID_integron	ID_replicon	element	pos_beg	pos_end	strand	evalue	type_elt	annotation	model	type	default	distance_2attC	considered_topology
+integron_01	ESC_WB8112AA_AS_NODE_67_length_4702_cov_22.623169	ESC_WB8112AA_AS_NODE_67_length_4702_cov_22.623169_1	123	773	1	9.5e-133	protein	AAC_6p_Ib-NCBIFAM	NF033074.0	CALIN	No	NA	lin
+integron_01	ESC_WB8112AA_AS_NODE_67_length_4702_cov_22.623169	attc_001	768	839	1	4.7e-07	attC	attC	attc_4	CALIN	No	NA	lin
+integron_01	ESC_WB8112AA_AS_NODE_67_length_4702_cov_22.623169	ESC_WB8112AA_AS_NODE_67_length_4702_cov_22.623169_2	904	1734	1	1.9e-199	protein	blaOXA-1_like-NCBIFAM	NF000388.2	CALIN	No	NA	lin
+integron_01	ESC_WB8112AA_AS_NODE_67_length_4702_cov_22.623169	attc_002	1754	1843	1	8.6e-07	attC	attC	attc_4	CALIN	No	915.0	lin

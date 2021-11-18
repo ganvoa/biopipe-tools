@@ -16,7 +16,6 @@ func main() {
 	rootCmd.AddCommand(fasta.FastaPersistentDownloadCommand())
 	rootCmd.AddCommand(strain.StrainBackupCommand())
 	rootCmd.AddCommand(integron.IntegronParse())
-	rootCmd.AddCommand(integron.IntegronParsePersist())
 	rootCmd.AddCommand(integron.IntegronFind())
 	rootCmd.AddCommand(integron.IntegronClean())
 	rootCmd.Execute()

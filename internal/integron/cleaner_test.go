@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestRemoveFilesWithoutIntegronResult(t *testing.T) {
+func TestWhenFolderHasFilesShouldPreserveFilesWithIntegronResultsOnly(t *testing.T) {
 	baseFolder := filepath.Join(".", "cleaner_test_data", "Results_Integron_Finder_488112")
 	newFolder := filepath.Join(".", "cleaner_test_data", "Results_Integron_Finder_488112_test")
 
@@ -30,7 +30,7 @@ func TestRemoveFilesWithoutIntegronResult(t *testing.T) {
 	assert.NoError(t, err)
 }
 
-func TestErrorOnNotFoundDirectory(t *testing.T) {
+func TestWhenFoundDirectoryIsNotFoundShouldReturnError(t *testing.T) {
 	folder := filepath.Join(".", "cleaner_test_data", "Results_Integron_Finder_Invalid")
 	logger := &platform.FakeLogger{}
 	cleaner := integron.NewIntegronResultCleaner(folder, logger)
