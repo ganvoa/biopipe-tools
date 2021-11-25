@@ -10,23 +10,21 @@ import (
 	"github.com/ganvoa/biopipe-tools/internal"
 )
 
-type integronResultCleaner struct {
-	resultDir string
-	logger    internal.Logger
+type IntegronResultCleaner struct {
+	logger internal.Logger
 }
 
-func NewIntegronResultCleaner(resultDir string, logger internal.Logger) integronResultCleaner {
-	cleaner := integronResultCleaner{}
-	cleaner.resultDir = resultDir
+func NewIntegronResultCleaner(logger internal.Logger) IntegronResultCleaner {
+	cleaner := IntegronResultCleaner{}
 	cleaner.logger = logger
 	return cleaner
 }
 
-func (cleaner integronResultCleaner) Clean() error {
+func (cleaner IntegronResultCleaner) Clean(resultFolder string) error {
 
 	cleaner.logger.Info("looking for non empty integron files")
 
-	files, err := ioutil.ReadDir(cleaner.resultDir)
+	files, err := ioutil.ReadDir(resultFolder)
 	if err != nil {
 		return err
 	}
@@ -37,14 +35,14 @@ func (cleaner integronResultCleaner) Clean() error {
 			continue
 		}
 
-		hasResult, err := cleaner.fileHasResult(file.Name())
+		hasResult, err := cleaner.fileHasResult(resultFolder, file.Name())
 		if err != nil {
 			return err
 		}
 
 		if !hasResult {
 			cleaner.logger.Infof("delete file %s", file.Name())
-			fileToRemove := filepath.Join(cleaner.resultDir, file.Name())
+			fileToRemove := filepath.Join(resultFolder, file.Name())
 			err = os.Remove(fileToRemove)
 			if err != nil {
 				return err
@@ -58,8 +56,8 @@ func (cleaner integronResultCleaner) Clean() error {
 	return nil
 }
 
-func (cleaner integronResultCleaner) fileHasResult(filePath string) (bool, error) {
-	fullPath := filepath.Join(cleaner.resultDir, filePath)
+func (cleaner IntegronResultCleaner) fileHasResult(resultFolder string, filePath string) (bool, error) {
+	fullPath := filepath.Join(resultFolder, filePath)
 	extension := filepath.Ext(fullPath)
 
 	if extension != ".integrons" {

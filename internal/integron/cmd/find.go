@@ -23,23 +23,6 @@ func IntegronFind() *cobra.Command {
 	return cmd
 }
 
-/*
-	si tiene sat2 se debe considerar como integron tipo 2 y guardar la cadena completa
-	protein protein no sirve
-	"qac" no siempre aparece aunque sea complete
-	calin mantener si es que no tiene protein protein
-	calin no trae el int1
-
-	complete
-	intI ANT_3pp_AadA1-NCBIFAM attC AAC_3_VIa-NCBIFAM attC 			-> ANT_3pp_AadA1-NCBIFAM|attC|AAC_3_VIa-NCBIFAM : integron
-	intI AAC_3_VIa-NCBIFAM attC ANT_3pp_AadA1-NCBIFAM 				-> AAC_3_VIa-NCBIFAM|attC|ANT_3pp_AadA1-NCBIFAM : integron
-	intI ANT_3pp_AadA1-NCBIFAM attC AAC_3_VIa-NCBIFAM attC-"qac" 	-> ANT_3pp_AadA1-NCBIFAM|attC|AAC_3_VIa-NCBIFAM
-
-	calin
-	ANT_3pp_AadA1-NCBIFAM-attC-proewasdas-attC -> propetxxx|attC|proewasdas
-	propetxxx-attC-proewasdas -> propetxxx|attC|proewasdas
-
-*/
 func runIntegronFind(cmd *cobra.Command, args []string) {
 	godotenv.Load()
 
@@ -53,9 +36,9 @@ func runIntegronFind(cmd *cobra.Command, args []string) {
 	logger.Debugf("output %s", outputDir)
 
 	finder := integron.NewIntegronFinder(outputDir, logger)
-	err := finder.Run(fastaFilePath)
+	resultsFolder, err := finder.Run(fastaFilePath)
 	if err != nil {
 		logger.Fatal(err)
 	}
-	logger.Debug("ending")
+	logger.Debugf("result on %s", resultsFolder)
 }

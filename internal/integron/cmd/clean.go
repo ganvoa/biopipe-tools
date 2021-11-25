@@ -33,8 +33,8 @@ func runIntegronClean(cmd *cobra.Command, args []string) {
 
 	logger.Debugf("result folder %s", folderDir)
 
-	finder := integron.NewIntegronResultCleaner(folderDir, logger)
-	err := finder.Clean()
+	finder := integron.NewIntegronResultCleaner(logger)
+	err := finder.Clean(folderDir)
 	if err != nil {
 		logger.Fatal(err)
 	}

@@ -19,8 +19,8 @@ func TestWhenFolderHasFilesShouldPreserveFilesWithIntegronResultsOnly(t *testing
 	err := copy.Copy(baseFolder, newFolder)
 	assert.NoError(t, err)
 	logger := &platform.FakeLogger{}
-	cleaner := integron.NewIntegronResultCleaner(newFolder, logger)
-	err = cleaner.Clean()
+	cleaner := integron.NewIntegronResultCleaner(logger)
+	err = cleaner.Clean(newFolder)
 	assert.NoError(t, err)
 
 	files, _ := ioutil.ReadDir(newFolder)
@@ -33,7 +33,7 @@ func TestWhenFolderHasFilesShouldPreserveFilesWithIntegronResultsOnly(t *testing
 func TestWhenFoundDirectoryIsNotFoundShouldReturnError(t *testing.T) {
 	folder := filepath.Join(".", "cleaner_test_data", "Results_Integron_Finder_Invalid")
 	logger := &platform.FakeLogger{}
-	cleaner := integron.NewIntegronResultCleaner(folder, logger)
-	err := cleaner.Clean()
+	cleaner := integron.NewIntegronResultCleaner(logger)
+	err := cleaner.Clean(folder)
 	assert.Error(t, err)
 }

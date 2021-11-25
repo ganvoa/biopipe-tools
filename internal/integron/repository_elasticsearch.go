@@ -11,10 +11,6 @@ import (
 	"github.com/elastic/go-elasticsearch/v7/esapi"
 )
 
-type IntegronRepository interface {
-	AddIntegron(strainId int, integrons []Integron) error
-}
-
 type integronRepository struct {
 	index  string
 	client *elasticsearch.Client

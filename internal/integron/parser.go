@@ -29,17 +29,17 @@ type Integron struct {
 	Considered_Topology string
 }
 
-type integronParser struct {
+type IntegronParser struct {
 	logger internal.Logger
 }
 
-func NewParser(logger internal.Logger) integronParser {
-	parser := integronParser{}
+func NewParser(logger internal.Logger) IntegronParser {
+	parser := IntegronParser{}
 	parser.logger = logger
 	return parser
 }
 
-func (ip integronParser) Parse(path string) ([]string, error) {
+func (ip IntegronParser) Parse(path string) ([]string, error) {
 
 	integrons := []string{}
 
@@ -75,8 +75,8 @@ func (ip integronParser) Parse(path string) ([]string, error) {
 	return integrons, nil
 }
 
-func (ip integronParser) toChain(integrons []Integron) (string, error) {
-	delimiter := "|"
+func (ip IntegronParser) toChain(integrons []Integron) (string, error) {
+	delimiter := " "
 	chain := ""
 
 	for i := len(integrons) - 1; i >= 0; i-- {
@@ -91,7 +91,7 @@ func (ip integronParser) toChain(integrons []Integron) (string, error) {
 	return chain, nil
 }
 
-func (ip integronParser) fileParse(filePath string) ([]Integron, error) {
+func (ip IntegronParser) fileParse(filePath string) ([]Integron, error) {
 	ip.logger.Debugf("opening file %s", filePath)
 
 	integrons := []Integron{}

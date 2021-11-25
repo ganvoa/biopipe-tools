@@ -37,9 +37,14 @@ func runIntegronParse(cmd *cobra.Command, args []string) {
 
 	parser := integron.NewParser(logger)
 
-	_, err := parser.Parse(folder)
+	integrons, err := parser.Parse(folder)
 	if err != nil {
 		logger.Fatal(err)
 	}
+
+	for _, chain := range integrons {
+		logger.Debug(chain)
+	}
+
 	logger.Debug("ending")
 }

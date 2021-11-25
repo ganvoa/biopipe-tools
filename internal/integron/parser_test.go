@@ -18,17 +18,17 @@ var integronSuite = []struct {
 		"Results_Integron_Finder_488901",
 		2,
 		[]string{
-			"intI|trim_DfrA1_like-NCBIFAM|attC|ANT_3pp_I-NCBIFAM|attC|SMR_qac_E-NCBIFAM",
-			"attC|attC|protein|protein",
+			"intI trim_DfrA1_like-NCBIFAM attC ANT_3pp_I-NCBIFAM attC SMR_qac_E-NCBIFAM",
+			"attC attC protein protein",
 		},
 	},
 	{
 		"Results_Integron_Finder_488112",
 		3,
 		[]string{
-			"intI|trim_DfrA12-NCBIFAM|attC|attC|ANT_3pp_I-NCBIFAM|attC|SMR_qac_E-NCBIFAM",
-			"attC|blaOXA-1_like-NCBIFAM|attC|AAC_6p_Ib-NCBIFAM",
-			"attC|attC|protein|protein",
+			"intI trim_DfrA12-NCBIFAM attC attC ANT_3pp_I-NCBIFAM attC SMR_qac_E-NCBIFAM",
+			"attC blaOXA-1_like-NCBIFAM attC AAC_6p_Ib-NCBIFAM",
+			"attC attC protein protein",
 		},
 	},
 }

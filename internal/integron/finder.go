@@ -16,36 +16,36 @@ import (
 	"github.com/ganvoa/biopipe-tools/internal"
 )
 
-type integronFinder struct {
+type IntegronFinder struct {
 	outputDir string
 	logger    internal.Logger
 }
 
-func NewIntegronFinder(outputDir string, logger internal.Logger) integronFinder {
-	ifind := integronFinder{}
+func NewIntegronFinder(outputDir string, logger internal.Logger) IntegronFinder {
+	ifind := IntegronFinder{}
 	ifind.outputDir = outputDir
 	ifind.logger = logger
 	return ifind
 }
 
-func (ifind integronFinder) Run(fastaFilePath string) error {
+func (ifind IntegronFinder) Run(fastaFilePath string) (string, error) {
 
 	pwd, err := os.Getwd()
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	ctx := context.Background()
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	imageName := "gempasteur/integron_finder:2.0rc10"
 
 	out, err := cli.ImagePull(ctx, imageName, types.ImagePullOptions{})
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	buf := new(bytes.Buffer)
@@ -72,11 +72,11 @@ func (ifind integronFinder) Run(fastaFilePath string) error {
 		},
 	}, nil, nil, "")
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	if err := cli.ContainerStart(ctx, resp.ID, types.ContainerStartOptions{}); err != nil {
-		return err
+		return "", err
 	}
 	ifind.logger.Info("integron finder started")
 
@@ -84,7 +84,7 @@ func (ifind integronFinder) Run(fastaFilePath string) error {
 	select {
 	case err := <-errCh:
 		if err != nil {
-			return err
+			return "", err
 		}
 	case <-statusCh:
 	}
@@ -92,7 +92,7 @@ func (ifind integronFinder) Run(fastaFilePath string) error {
 	ifind.logger.Info("integron finder finished")
 	out, err = cli.ContainerLogs(ctx, resp.ID, types.ContainerLogsOptions{ShowStdout: true})
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	buf.ReadFrom(out)
@@ -102,13 +102,13 @@ func (ifind integronFinder) Run(fastaFilePath string) error {
 
 	fastaFile := filepath.Base(fastaFilePath)
 	fastaName := strings.TrimSuffix(fastaFile, filepath.Ext(fastaFile))
-	integronFinderOutputDir := fmt.Sprintf(`%s/%s/Results_Integron_Finder_%s`, pwd, ifind.outputDir, fastaName)
+	IntegronFinderOutputDir := fmt.Sprintf(`%s/%s/Results_Integron_Finder_%s`, pwd, ifind.outputDir, fastaName)
 
-	if _, err := os.Stat(integronFinderOutputDir); os.IsNotExist(err) {
-		return errors.New("cant find integron finder result folder")
+	if _, err := os.Stat(IntegronFinderOutputDir); os.IsNotExist(err) {
+		return "", errors.New("cant find integron finder result folder")
 	}
 
-	ifind.logger.Infof("integron finder result folder succeed %s", integronFinderOutputDir)
+	ifind.logger.Infof("integron finder result folder succeed %s", IntegronFinderOutputDir)
 
-	return nil
+	return IntegronFinderOutputDir, nil
 }
