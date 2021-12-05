@@ -12,7 +12,7 @@ const command_integron_find = "integron:find"
 func IntegronFind() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   command_integron_find,
-		Args:  cobra.MinimumNArgs(1),
+		Args:  cobra.MinimumNArgs(2),
 		Short: "runs integron finder on a specified fasta file",
 		Run:   runIntegronFind,
 	}
@@ -31,12 +31,13 @@ func runIntegronFind(cmd *cobra.Command, args []string) {
 	logger := platform.NewLogger(command_integron_find, debug)
 	logger.Debug("started")
 
-	fastaFilePath := args[0]
+	fastaFileDir := args[0]
+	fastaFileName := args[2]
 
 	logger.Debugf("output %s", outputDir)
 
 	finder := integron.NewIntegronFinder(outputDir, logger)
-	resultsFolder, err := finder.Run(fastaFilePath)
+	resultsFolder, err := finder.Run(fastaFileDir, fastaFileName)
 	if err != nil {
 		logger.Fatal(err)
 	}

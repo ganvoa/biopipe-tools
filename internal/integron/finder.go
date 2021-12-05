@@ -28,7 +28,7 @@ func NewIntegronFinder(outputDir string, logger internal.Logger) IntegronFinder 
 	return ifind
 }
 
-func (ifind IntegronFinder) Run(fastaFilePath string) (string, error) {
+func (ifind IntegronFinder) Run(downloadDir string, fastaFile string) (string, error) {
 
 	pwd, err := os.Getwd()
 	if err != nil {
@@ -51,26 +51,27 @@ func (ifind IntegronFinder) Run(fastaFilePath string) (string, error) {
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(out)
 
-	fastaFilePath = fmt.Sprintf(`/fasta/%s`, fastaFilePath)
+	fastaFilePath := fmt.Sprintf(`/%s/%s`, downloadDir, fastaFile)
 
 	resp, err := cli.ContainerCreate(ctx, &container.Config{
 		Image: imageName,
-		Cmd:   []string{"--local-max", "--split-results", "--func-annot", "--outdir", "/output", fastaFilePath},
+		Cmd:   []string{"--local-max", "--split-results", "--func-annot", "--outdir", ifind.outputDir, fastaFilePath},
 		Tty:   true,
 	}, &container.HostConfig{
 		Mounts: []mount.Mount{
 			{
 				Type:   mount.TypeBind,
-				Source: fmt.Sprintf(`%s/download`, pwd),
-				Target: "/fasta",
+				Source: fmt.Sprintf(`%s/%s`, pwd, downloadDir),
+				Target: fmt.Sprintf(`/%s`, downloadDir),
 			},
 			{
 				Type:   mount.TypeBind,
 				Source: fmt.Sprintf(`%s/%s`, pwd, ifind.outputDir),
-				Target: "/output",
+				Target: ifind.outputDir,
 			},
 		},
 	}, nil, nil, "")
+
 	if err != nil {
 		return "", err
 	}
@@ -78,6 +79,7 @@ func (ifind IntegronFinder) Run(fastaFilePath string) (string, error) {
 	if err := cli.ContainerStart(ctx, resp.ID, types.ContainerStartOptions{}); err != nil {
 		return "", err
 	}
+
 	ifind.logger.Info("integron finder started")
 
 	statusCh, errCh := cli.ContainerWait(ctx, resp.ID, container.WaitConditionNotRunning)
@@ -100,7 +102,6 @@ func (ifind IntegronFinder) Run(fastaFilePath string) (string, error) {
 	outString := buf.String()
 	ifind.logger.Debug(outString)
 
-	fastaFile := filepath.Base(fastaFilePath)
 	fastaName := strings.TrimSuffix(fastaFile, filepath.Ext(fastaFile))
 	IntegronFinderOutputDir := fmt.Sprintf(`%s/%s/Results_Integron_Finder_%s`, pwd, ifind.outputDir, fastaName)
 
