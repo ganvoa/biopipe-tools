@@ -24,7 +24,6 @@ func FastaPersistentDownloadCommand() *cobra.Command {
 	cmd.MarkFlagRequired("output")
 	cmd.Flags().Bool("debug", false, "Debug")
 	cmd.Flags().StringP("database", "d", "ecoli", "Database name")
-	cmd.Flags().StringP("index", "i", "enterobase", "Elasticsearch Index Name")
 
 	return cmd
 }
@@ -40,13 +39,13 @@ func runPersistentDownload(cmd *cobra.Command, args []string) {
 	sessionKey := os.Getenv("ENTEROBASE_SESSION")
 	outputDir, _ := cmd.Flags().GetString("output")
 	databaseName, _ := cmd.Flags().GetString("database")
-	indexName, _ := cmd.Flags().GetString("index")
 
 	fastaId, err := strconv.Atoi(args[0])
 	if err != nil {
 		logger.Fatal(err)
 	}
 
+	indexName := os.Getenv("ELASTICSEARCH_INDEX")
 	client, err := platform.NewElasticSearchConnection(
 		os.Getenv("ELASTICSEARCH_URL"),
 		os.Getenv("ELASTICSEARCH_USERNAME"),

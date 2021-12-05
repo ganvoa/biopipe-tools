@@ -19,7 +19,6 @@ func StrainBackupCommand() *cobra.Command {
 		Run:   run,
 	}
 
-	cmd.Flags().StringP("index", "i", "enterobase", "Elasticsearch Index Name")
 	cmd.Flags().Bool("debug", false, "Debug")
 
 	return cmd
@@ -32,16 +31,19 @@ func run(cmd *cobra.Command, args []string) {
 	logger := platform.NewLogger(command_strain_backup, debug)
 	logger.Debug("started")
 
-	indexName, _ := cmd.Flags().GetString("index")
 	filePath := args[0]
+
+	indexName := os.Getenv("ELASTICSEARCH_INDEX")
 	client, err := platform.NewElasticSearchConnection(
 		os.Getenv("ELASTICSEARCH_URL"),
 		os.Getenv("ELASTICSEARCH_USERNAME"),
 		os.Getenv("ELASTICSEARCH_PASSWORD"),
 	)
+
 	if err != nil {
 		logger.Fatal(err)
 	}
+
 	repository := strain.NewRepository(indexName, client, logger)
 	parser := strain.NewStrainParser(filePath)
 	backuper := strain.NewStrainBackuper(repository, parser, logger)

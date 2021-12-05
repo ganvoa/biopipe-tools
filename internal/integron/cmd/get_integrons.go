@@ -21,7 +21,6 @@ func GetIntegrons() *cobra.Command {
 	}
 
 	cmd.Flags().StringP("output", "o", "output/", "Output directory")
-	cmd.Flags().StringP("index", "i", "enterobase", "Elasticsearch Index Name")
 	cmd.Flags().Bool("debug", false, "Debug")
 
 	return cmd
@@ -40,7 +39,7 @@ func runGetIntegrons(cmd *cobra.Command, args []string) {
 	logger.Debugf("output %s", outputDir)
 	logger.Debugf("download %s", downloadDir)
 
-	indexName, _ := cmd.Flags().GetString("index")
+	indexName := os.Getenv("ELASTICSEARCH_INDEX")
 
 	client, err := platform.NewElasticSearchConnection(
 		os.Getenv("ELASTICSEARCH_URL"),
