@@ -67,7 +67,7 @@ func (gi GetIntegrons) Run(downloadDir string, outputDir string) error {
 				continue
 			}
 
-			gi.logger.Infof("parsing results %s", fastaFile)
+			gi.logger.Info("parsing results")
 			integrons, err := gi.parser.Parse(resultFolder)
 
 			if err != nil {
