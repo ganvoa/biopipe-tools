@@ -22,7 +22,7 @@ func NewIntegronResultCleaner(logger internal.Logger) IntegronResultCleaner {
 
 func (cleaner IntegronResultCleaner) Clean(resultFolder string) error {
 
-	cleaner.logger.Info("looking for non empty integron files")
+	cleaner.logger.Debug("looking for non empty integron files")
 
 	files, err := ioutil.ReadDir(resultFolder)
 	if err != nil {
@@ -41,7 +41,7 @@ func (cleaner IntegronResultCleaner) Clean(resultFolder string) error {
 		}
 
 		if !hasResult {
-			cleaner.logger.Infof("delete file %s", file.Name())
+			cleaner.logger.Debugf("delete file %s", file.Name())
 			fileToRemove := filepath.Join(resultFolder, file.Name())
 			err = os.Remove(fileToRemove)
 			if err != nil {
@@ -50,7 +50,38 @@ func (cleaner IntegronResultCleaner) Clean(resultFolder string) error {
 			continue
 		}
 
-		cleaner.logger.Infof("file with results %s", file.Name())
+		cleaner.logger.Debugf("file with results %s", file.Name())
+	}
+
+	return nil
+}
+
+func (cleaner IntegronResultCleaner) Remove(resultFolder string) error {
+
+	cleaner.logger.Debugf("removing folder %s", resultFolder)
+
+	files, err := ioutil.ReadDir(resultFolder)
+	if err != nil {
+		return err
+	}
+
+	for _, file := range files {
+
+		if file.IsDir() {
+			continue
+		}
+
+		cleaner.logger.Debugf("delete file %s", file.Name())
+		fileToRemove := filepath.Join(resultFolder, file.Name())
+		err = os.Remove(fileToRemove)
+		if err != nil {
+			return err
+		}
+	}
+
+	err = os.Remove(resultFolder)
+	if err != nil {
+		return err
 	}
 
 	return nil

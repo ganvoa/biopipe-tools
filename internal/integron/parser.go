@@ -70,7 +70,7 @@ func (ip IntegronParser) Parse(path string) ([]string, error) {
 
 	}
 
-	ip.logger.Infof("integrons found %d", len(integrons))
+	ip.logger.Debugf("integrons found %d", len(integrons))
 
 	return integrons, nil
 }

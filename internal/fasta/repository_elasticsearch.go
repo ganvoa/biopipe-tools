@@ -94,13 +94,6 @@ func (repo fastaRepositoryElasticSearch) NotDownloaded(from int) ([]Strain, erro
 			  },
 			  {
 				"term": {
-				  "is_downloadable": {
-					"value": false
-				  }
-				}
-			  },
-			  {
-				"term": {
 				  "downloaded": {
 					"value": true
 				  }

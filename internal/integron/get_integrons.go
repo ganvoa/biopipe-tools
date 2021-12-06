@@ -49,37 +49,48 @@ func (gi GetIntegrons) Run(downloadDir string, outputDir string) error {
 
 			fastaFile := fmt.Sprintf("%d.fasta", strain.AssemblyId)
 
-			gi.logger.Infof("proccessing fasta file %s", fastaFile)
-
+			gi.logger.Infof("proccessing fasta %s", fastaFile)
 			resultFolder, err := gi.finder.Run(downloadDir, fastaFile)
 			if err != nil {
 
 				failed = failed + 1
-				gi.logger.Warnf("couldnt run integron finder on strain %d", strain.AssemblyId)
+				gi.logger.Warnf("error %v", err)
 				continue
 			}
 
-			gi.logger.Infof("cleaning results %s", fastaFile)
-			gi.cleaner.Clean(resultFolder)
+			gi.logger.Info("cleaning results")
+			err = gi.cleaner.Clean(resultFolder)
+			if err != nil {
+
+				failed = failed + 1
+				gi.logger.Warnf("error %v", err)
+				continue
+			}
 
 			gi.logger.Infof("parsing results %s", fastaFile)
 			integrons, err := gi.parser.Parse(resultFolder)
 
 			if err != nil {
 				failed = failed + 1
-				gi.logger.Warnf("couldnt parse integrons on strain %d", strain.AssemblyId)
+				gi.logger.Warnf("error %v", err)
 				continue
 			}
-
 			gi.logger.Infof("integrons found %d", len(integrons))
 			err = gi.fastaRepository.AddIntegrons(strain.Id, integrons)
 
 			if err != nil {
 				failed = failed + 1
-				gi.logger.Warnf("couldnt save integrons found on strain %d", strain.AssemblyId)
+				gi.logger.Warnf("error %v", err)
 				continue
 			}
 			gi.logger.Infof("integrons saved %d", len(integrons))
+
+			gi.logger.Info("removing folder")
+			err = gi.cleaner.Remove(resultFolder)
+			if err != nil {
+
+				gi.logger.Warnf("error %v", err)
+			}
 
 			succeeded = succeeded + 1
 

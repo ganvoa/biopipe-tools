@@ -1,6 +1,6 @@
 .PHONY: build
 build:
-	@docker build -t gamboa/biopipe-cli:latest .
+	@go build -o ./biopipe ./cmd/cli/biopipe.go
 
 .PHONY: push
 push:

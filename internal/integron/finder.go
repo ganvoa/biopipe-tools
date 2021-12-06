@@ -55,7 +55,7 @@ func (ifind IntegronFinder) Run(downloadDir string, fastaFile string) (string, e
 
 	resp, err := cli.ContainerCreate(ctx, &container.Config{
 		Image: imageName,
-		Cmd:   []string{"--local-max", "--split-results", "--func-annot", "--outdir", ifind.outputDir, fastaFilePath},
+		Cmd:   []string{"--local-max", "--split-results", "--func-annot", "--outdir", fmt.Sprintf(`/%s`, ifind.outputDir), fastaFilePath},
 		Tty:   true,
 	}, &container.HostConfig{
 		Mounts: []mount.Mount{
@@ -67,7 +67,7 @@ func (ifind IntegronFinder) Run(downloadDir string, fastaFile string) (string, e
 			{
 				Type:   mount.TypeBind,
 				Source: fmt.Sprintf(`%s/%s`, pwd, ifind.outputDir),
-				Target: ifind.outputDir,
+				Target: fmt.Sprintf(`/%s`, ifind.outputDir),
 			},
 		},
 	}, nil, nil, "")
@@ -80,7 +80,7 @@ func (ifind IntegronFinder) Run(downloadDir string, fastaFile string) (string, e
 		return "", err
 	}
 
-	ifind.logger.Info("integron finder started")
+	ifind.logger.Debug("integron finder started")
 
 	statusCh, errCh := cli.ContainerWait(ctx, resp.ID, container.WaitConditionNotRunning)
 	select {
@@ -91,7 +91,7 @@ func (ifind IntegronFinder) Run(downloadDir string, fastaFile string) (string, e
 	case <-statusCh:
 	}
 
-	ifind.logger.Info("integron finder finished")
+	ifind.logger.Debug("integron finder finished")
 	out, err = cli.ContainerLogs(ctx, resp.ID, types.ContainerLogsOptions{ShowStdout: true})
 	if err != nil {
 		return "", err
@@ -109,7 +109,7 @@ func (ifind IntegronFinder) Run(downloadDir string, fastaFile string) (string, e
 		return "", errors.New("cant find integron finder result folder")
 	}
 
-	ifind.logger.Infof("integron finder result folder succeed %s", IntegronFinderOutputDir)
+	ifind.logger.Debugf("integron finder result folder succeed %s", IntegronFinderOutputDir)
 
 	return IntegronFinderOutputDir, nil
 }
