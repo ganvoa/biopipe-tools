@@ -102,6 +102,8 @@ func (ip IntegronParser) fileParse(filePath string) ([]Integron, error) {
 		return nil, err
 	}
 
+	defer file.Close()
+
 	r := csv.NewReader(file)
 	r.Comma = '\t'
 	r.Comment = '#'
