@@ -19,5 +19,6 @@ func main() {
 	rootCmd.AddCommand(integron.IntegronFind())
 	rootCmd.AddCommand(integron.IntegronClean())
 	rootCmd.AddCommand(integron.GetIntegrons())
+	rootCmd.AddCommand(integron.NormalizeIntegrons())
 	rootCmd.Execute()
 }

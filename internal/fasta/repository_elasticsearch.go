@@ -18,7 +18,9 @@ type FastaRepository interface {
 
 	GetByStrainId(strainId int) (*Strain, error)
 	FindWithoutIntegronResult(from int) ([]Strain, error)
+	FindWithIntegronResult(from int) ([]IntegronResponse, error)
 	AddIntegrons(strainId int, integrons []string) error
+	UpdateIntegron(strainId int, update []IntegronResult) error
 }
 
 type DownloadedRequest struct {
@@ -30,6 +32,11 @@ type DownloadedRequest struct {
 type Strain struct {
 	Id         int `json:"id"`
 	AssemblyId int `json:"best_assembly"`
+}
+
+type IntegronResponse struct {
+	Id        int      `json:"id"`
+	Integrons []string `json:"integrons"`
 }
 
 type GetByStrainIdResponse struct {
@@ -44,6 +51,20 @@ type NotDownloadedResponse struct {
 	} `json:"hits"`
 }
 
+type WithIntegronResponse struct {
+	Hits struct {
+		Hits []struct {
+			Source IntegronResponse `json:"_source"`
+		} `json:"hits"`
+	} `json:"hits"`
+}
+
+type IntegronResult struct {
+	Original   string
+	Normalized string
+	Inverted   string
+	Short      string
+}
 type fastaRepositoryElasticSearch struct {
 	index  string
 	client *elasticsearch.Client
@@ -225,6 +246,71 @@ func (repo fastaRepositoryElasticSearch) FindWithoutIntegronResult(from int) ([]
 	return strains, nil
 }
 
+func (repo fastaRepositoryElasticSearch) FindWithIntegronResult(from int) ([]IntegronResponse, error) {
+	reader := strings.NewReader(fmt.Sprintf(`{
+		"size": 20,
+		"sort": [
+		  {
+			"id": {
+			  "order": "desc"
+			}
+		  }
+		],
+		"query": {
+		  "bool": {
+			"filter": {
+			  "range": {
+				"id": {
+				  "lt": %d
+				}
+			  }
+			},
+			"must": {
+			  "term": {
+				"integron_finder": {
+				  "value": true
+				}
+			  }
+			},
+			"must_not": {
+			  "exists": {
+				"field": "integron_found"
+			  }
+			}
+		  }
+		},
+		"_source": [
+		  "id",
+		  "integrons"
+		]
+	  }
+	  `, from))
+
+	res, err := repo.client.Search(
+		repo.client.Search.WithContext(context.Background()),
+		repo.client.Search.WithIndex(repo.index),
+		repo.client.Search.WithBody(reader),
+		repo.client.Search.WithTrackTotalHits(true),
+		repo.client.Search.WithFilterPath("hits.hits._source"),
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	response := WithIntegronResponse{}
+	err = json.NewDecoder(res.Body).Decode(&response)
+	if err != nil {
+		return nil, err
+	}
+
+	integrons := []IntegronResponse{}
+	for _, hit := range response.Hits.Hits {
+		integrons = append(integrons, hit.Source)
+	}
+	return integrons, nil
+}
+
 func (repo fastaRepositoryElasticSearch) GetByStrainId(strainId int) (*Strain, error) {
 	req := esapi.GetRequest{
 		Index:      repo.index,
@@ -275,6 +361,27 @@ func (repo fastaRepositoryElasticSearch) AddIntegrons(strainId int, integrons []
 		Index:      repo.index,
 		DocumentID: strconv.Itoa(strainId),
 		Body:       strings.NewReader(fmt.Sprintf(`{"doc": {"integron_finder": true, "integrons": %s}}`, string(integronsAsArray))),
+	}
+	res, err := req.Do(context.Background(), repo.client)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+
+	return nil
+}
+
+func (repo fastaRepositoryElasticSearch) UpdateIntegron(strainId int, results []IntegronResult) error {
+	integronsAsArray, err := json.Marshal(results)
+
+	if err != nil {
+		return err
+	}
+
+	req := esapi.UpdateRequest{
+		Index:      repo.index,
+		DocumentID: strconv.Itoa(strainId),
+		Body:       strings.NewReader(fmt.Sprintf(`{"doc": {"integron_normalizer": true, "integron_found": %d, "integron_result": %s}}`, len(results), string(integronsAsArray))),
 	}
 	res, err := req.Do(context.Background(), repo.client)
 	if err != nil {

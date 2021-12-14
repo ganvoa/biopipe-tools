@@ -76,6 +76,8 @@ func (ifind IntegronFinder) Run(downloadDir string, fastaFile string) (string, e
 		return "", err
 	}
 
+	defer cli.Close()
+
 	if err := cli.ContainerStart(ctx, resp.ID, types.ContainerStartOptions{}); err != nil {
 		return "", err
 	}
