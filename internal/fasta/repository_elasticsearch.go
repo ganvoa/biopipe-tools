@@ -60,10 +60,15 @@ type WithIntegronResponse struct {
 }
 
 type IntegronResult struct {
-	Original   string
-	Normalized string
-	Inverted   string
-	Short      string
+	Original    string
+	Normalized  string
+	Inverted    string
+	Short       string
+	Is_Zero_One bool
+	Is_Complete bool
+	Is_Calin    bool
+	Has_Qac     bool
+	Is_Type     string
 }
 type fastaRepositoryElasticSearch struct {
 	index  string
@@ -274,7 +279,7 @@ func (repo fastaRepositoryElasticSearch) FindWithIntegronResult(from int) ([]Int
 			},
 			"must_not": {
 			  "exists": {
-				"field": "integron_found"
+				"field": "integron_finder_result"
 			  }
 			}
 		  }
@@ -381,7 +386,7 @@ func (repo fastaRepositoryElasticSearch) UpdateIntegron(strainId int, results []
 	req := esapi.UpdateRequest{
 		Index:      repo.index,
 		DocumentID: strconv.Itoa(strainId),
-		Body:       strings.NewReader(fmt.Sprintf(`{"doc": {"integron_normalizer": true, "integron_found": %d, "integron_result": %s}}`, len(results), string(integronsAsArray))),
+		Body:       strings.NewReader(fmt.Sprintf(`{"doc": {"integron_normalizer": true, "integron_found": %d, "integron_finder_result": %s}}`, len(results), string(integronsAsArray))),
 	}
 	res, err := req.Do(context.Background(), repo.client)
 	if err != nil {
