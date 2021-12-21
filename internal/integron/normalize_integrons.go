@@ -103,8 +103,11 @@ func (in IntegronNormalizer) Run() error {
 						has_qac = true
 					}
 
-					if normalizedSlice[0] == "intI" && strings.Contains(normalizedSlice[len(normalizedSlice)-1], "qac") {
-						is_complete = true
+					normalizedSlice = strings.Split(normalized, " ")
+					if normalizedSlice[0] == "intI" {
+						if strings.Contains(normalizedSlice[len(normalizedSlice)-1], "qac") {
+							is_complete = true
+						}
 					}
 
 					if normalizedSlice[0] != "intI" {

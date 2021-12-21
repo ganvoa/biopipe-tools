@@ -253,7 +253,7 @@ func (repo fastaRepositoryElasticSearch) FindWithoutIntegronResult(from int) ([]
 
 func (repo fastaRepositoryElasticSearch) FindWithIntegronResult(from int) ([]IntegronResponse, error) {
 	reader := strings.NewReader(fmt.Sprintf(`{
-		"size": 20,
+		"size": 100,
 		"sort": [
 		  {
 			"id": {
@@ -279,7 +279,7 @@ func (repo fastaRepositoryElasticSearch) FindWithIntegronResult(from int) ([]Int
 			},
 			"must_not": {
 			  "exists": {
-				"field": "integron_finder_result"
+				"field": "integron_normalized"
 			  }
 			}
 		  }
@@ -386,7 +386,7 @@ func (repo fastaRepositoryElasticSearch) UpdateIntegron(strainId int, results []
 	req := esapi.UpdateRequest{
 		Index:      repo.index,
 		DocumentID: strconv.Itoa(strainId),
-		Body:       strings.NewReader(fmt.Sprintf(`{"doc": {"integron_normalizer": true, "integron_found": %d, "integron_finder_result": %s}}`, len(results), string(integronsAsArray))),
+		Body:       strings.NewReader(fmt.Sprintf(`{"doc": {"integron_normalized": true, "integron_found": %d, "integron_finder_result": %s}}`, len(results), string(integronsAsArray))),
 	}
 	res, err := req.Do(context.Background(), repo.client)
 	if err != nil {
